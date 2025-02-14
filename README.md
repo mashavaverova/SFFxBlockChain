@@ -1,97 +1,126 @@
-## Project Description: NFT Book Marketplace with Rights Management
-This project is a decentralized NFT-based marketplace where authors can publish books as NFTs, buyers can purchase them, and administrators can manage access, payments, and rights transfers. The marketplace supports role-based access control, ensuring that only authorized users can perform specific actions.
+# 📚 NFT Book Marketplace with Rights Management
 
-It consists of several key smart contracts that work together:
+**project is under development, so you cant find any test files or autorisation implemented**
 
-NFTBookContract – Manages the creation, approval, and deletion of NFT books.
-MarketplaceContract – Allows users to list, update, and purchase NFT books.
-RightsManagerContract – Handles ownership rights transfers and approvals.
-PaymentSplitterContract – Distributes revenue among multiple recipients.
-FundManagerContract – Manages withdrawals and transfers of platform funds.
-DEF_ADMIN_contract – Implements role-based access control for admins, fund managers, and authors.
-Workflow Overview
-Each participant in the system has a different interaction flow. Below is a step-by-step breakdown for authors, admins, and buyers.
+## **Project Overview**
 
-📖 Author's Workflow: Creating and Managing NFT Books
-Request to Publish a Book:
+This project is a **decentralized NFT-based marketplace** where authors can publish books as NFTs, buyers can purchase them, and administrators can manage access, payments, and rights transfers. The marketplace supports **role-based access control**, ensuring that **only authorized users** can perform specific actions.
 
-The author submits a publishing request via NFTBookContract, providing:
-title (Book title)
-bookHash (IPFS hash containing the book’s content)
-recipient (Who will receive the NFT)
-Approval & Minting:
+### **Key Features**
+- **NFT-based Book Publishing** – Authors can publish books as NFTs.
+- **Marketplace Listings** – Authors can list and sell books.
+- **Secure Payment Distribution** – Payments are split between multiple recipients.
+- **Role-Based Access Control** – Admins manage platform operations.
+- **Rights Management System** – Buyers can acquire rights over NFT books.
 
-A platform admin reviews and approves the request.
-The NFT is minted and stored in NFTBookContract.
-The book's metadata (title, author, IPFS hash, timestamps) is recorded.
-Listing the Book on Marketplace:
+## **🛠️ Smart Contract Architecture**
 
-The author lists their book via MarketplaceContract, setting a price in wei.
-The contract verifies:
-The author owns the NFT.
-The author has the correct role.
-Updating or Removing Listings:
+The system consists of multiple smart contracts working together:
 
-The author can update the price of the NFT book.
-If they wish to remove the book, they can delete the listing.
-Request to Delete a Book (Before Purchase):
+| Contract | Function |
+|----------|----------|
+| `NFTBookContract` | Manages book minting, publishing, and deletion of NFT books. |
+| `MarketplaceContract` | Handles listing, updating, and purchasing of NFT books. |
+| `RightsManagerContract` | Manages ownership rights transfers and approvals. |
+| `PaymentSplitterContract` | Splits and distributes payments among multiple recipients. |
+| `FundManagerContract` | Handles platform fund withdrawals and transfers. |
+| `DEF_ADMIN_contract` | Implements role-based access control for administrators, fund managers, and authors. |
 
-If the book has not been purchased, the author can request deletion.
-A platform admin must approve the deletion.
-Once approved, the NFT is burned, and metadata is removed.
-🛠️ Admin's Workflow: Managing Authors, Marketplace, and Funds
-Granting and Revoking Roles:
+---
 
-The default admin grants PLATFORM_ADMIN_ROLE, FUND_MANAGER_ROLE, and AUTHOR_ROLE.
-Platform Admins can grant or revoke the Author role.
-Approving Book Publishing Requests:
+# **🔄 Workflow Overview**
 
-When an author requests to publish, a platform admin must review and approve it.
-Upon approval, the NFT is minted and assigned to the recipient.
-Approving or Declining Deletion Requests:
+### **📖 Author's Workflow** (Creating & Managing NFT Books)
 
-If an author requests deletion, a platform admin must approve it.
-If approved, the NFT is burned, and metadata is removed.
-Managing Funds & Withdrawals:
+1. **Request to Publish a Book**
+   - Submits a **publishing request** to `NFTBookContract`.
+   - Provides **title**, **IPFS hash**, and **recipient address**.
 
-Fund managers handle fund requests via FundManagerContract.
-Admins approve fund withdrawals and fund transfers.
-Updating Marketplace Contracts:
+2. **Admin Approval & NFT Minting**
+   - A **platform admin** must review and approve the request.
+   - Upon approval, the NFT book is **minted**.
 
-Admins can set or update the Rights Manager Contract address in MarketplaceContract.
-💰 Buyer's Workflow: Purchasing and Receiving Rights
-Browsing Listings:
+3. **Listing the Book on the Marketplace**
+   - The author **lists the book** on `MarketplaceContract`.
+   - Sets a **price in wei**.
 
-The buyer views books listed on MarketplaceContract.
-Purchasing a Book NFT:
+4. **Updating or Removing Listings**
+   - Can **update the price**.
+   - Can **remove** the listing if needed.
 
-The buyer sends ETH to purchase an NFT book.
-MarketplaceContract verifies:
-The listing is active.
-The sent amount is sufficient.
-Excess ETH is refunded (if applicable).
-Payments are split among recipients via PaymentSplitterContract.
-Receiving NFT and Rights:
+5. **Request Deletion (Before Purchase)**
+   - If the book is **not purchased**, the author can **request deletion**.
+   - An **admin must approve** the deletion.
+   - Once approved, the NFT is **burned**.
 
-After purchase, the NFT transfers to the buyer.
-RightsManagerContract manages ownership rights and IPFS agreements.
-Requesting Rights Transfer (if applicable):
+---
 
-A buyer may request additional rights transfers via RightsManagerContract.
-The request is reviewed, and the author must approve.
-Once approved, ownership rights are updated and stored on-chain.
-🔗 Smart Contract Interactions Overview
-1️⃣ Authors interact with:
+### **🛠️ Admin's Workflow** (Managing Authors, Marketplace & Funds)
 
-NFTBookContract (Publishing books)
-MarketplaceContract (Listing books)
-2️⃣ Admins interact with:
+1. **Managing User Roles**
+   - The **default admin** assigns `PLATFORM_ADMIN_ROLE`, `FUND_MANAGER_ROLE`, and `AUTHOR_ROLE`.
+   - **Platform Admins** can grant or revoke **Author roles**.
 
-DEF_ADMIN_contract (Role management)
-NFTBookContract (Approving books)
-MarketplaceContract (Managing listings)
-FundManagerContract (Approving withdrawals)
-3️⃣ Buyers interact with:
+2. **Approving Book Publishing Requests**
+   - Reviews and **approves** books submitted by authors.
+   - NFT book is **minted** on approval.
 
-MarketplaceContract (Purchasing books)
-RightsManagerContract (Managing rights transfers)
+3. **Approving/Declining Deletion Requests**
+   - Admin **approves** or **declines** an author’s request to delete a book.
+   - If approved, **NFT is burned** and removed from the system.
+
+4. **Managing Funds & Withdrawals**
+   - **Fund managers** handle **fund requests** via `FundManagerContract`.
+   - Admins approve **fund withdrawals** and **fund transfers**.
+
+5. **Updating Marketplace Contracts**
+   - Admins can **set or update** the Rights Manager Contract.
+
+---
+
+### **💰 Buyer's Workflow** (Purchasing & Receiving Rights)
+
+1. **Browsing Listings**
+   - Views books listed on `MarketplaceContract`.
+
+2. **Purchasing a Book NFT**
+   - Sends **ETH** to purchase the NFT book.
+   - The contract verifies:
+     - The **listing is active**.
+     - The **sent amount** is correct.
+   - Excess ETH is **refunded**.
+
+3. **Receiving NFT and Rights**
+   - NFT **transfers to the buyer**.
+   - `RightsManagerContract` updates **ownership rights**.
+
+4. **Requesting Rights Transfer (if applicable)**
+   - The buyer may request **additional rights**.
+   - The **author must approve**.
+   - Rights are updated and stored **on-chain**.
+
+---
+
+# **🔗 Smart Contract Interactions Overview**
+
+### **📖 Authors interact with:**
+- `NFTBookContract` (Publishing books)
+- `MarketplaceContract` (Listing books)
+
+### **🛠️ Admins interact with:**
+- `DEF_ADMIN_contract` (Role management)
+- `NFTBookContract` (Approving books)
+- `MarketplaceContract` (Managing listings)
+- `FundManagerContract` (Approving withdrawals)
+
+### **💰 Buyers interact with:**
+- `MarketplaceContract` (Purchasing books)
+- `RightsManagerContract` (Managing rights transfers)
+
+
+---
+
+# **📜 License**
+
+This project is licensed under the **MIT License**.
+
