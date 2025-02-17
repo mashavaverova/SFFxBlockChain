@@ -7,15 +7,17 @@ import {
     purchaseToken
 } from "../services/marketplaceService.mjs";
 
+import { authenticateToken, authorizeRole } from "../middlewares/authMiddleware.mjs";
+
 const router = express.Router();
 
-// 📌 Token Listings
-router.post("/list", listToken);
-router.post("/update", updateListing);
-router.delete("/remove", removeListing);
-router.get("/:tokenId", getListing);
+// Token Listings (Only Authors can list, Only Platform Admins can update/remove)
+router.post("/list", authenticateToken, authorizeRole(['PLATFORM_ADMIN','AUTHOR']), listToken);
+router.post("/update", authenticateToken, authorizeRole(['PLATFORM_ADMIN', 'AUTHOR']), updateListing);
+router.delete("/remove", authenticateToken, authorizeRole(['PLATFORM_ADMIN', 'AUTHOR']), removeListing);
+router.get("/:tokenId", getListing); // Public Access: Anyone can view listings
 
-// 🔥 Purchase Token
-router.post("/purchase", purchaseToken);
+// Purchase Token (Only Buyers)
+router.post("/purchase", authenticateToken, authorizeRole(['BUYER']), purchaseToken);
 
 export default router;

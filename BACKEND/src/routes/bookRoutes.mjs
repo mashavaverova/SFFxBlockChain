@@ -9,24 +9,25 @@ import { requestPublishBook,
      deleteDirect, 
      markAsPurchased } from "../services/bookService.mjs";
 
+import { authenticateToken, authorizeRole } from "../middlewares/authMiddleware.mjs";
+
 const router = express.Router();
 
-// 📚 1️⃣ Publishing & Approving
-router.post("/request", requestPublishBook);
-router.post("/approve/:requestId", approvePublishing);
-router.post("/publish-direct", publishDirect);
+// Publishing & Approving
+router.post("/request", authenticateToken, authorizeRole(['AUTHOR']), requestPublishBook);
+router.post("/approve/:requestId", authenticateToken, authorizeRole(['PLATFORM_ADMIN']), approvePublishing);
+router.post("/publish-direct", authenticateToken, authorizeRole(['PLATFORM_ADMIN']), publishDirect);
 
-// 🔍 2️⃣ Get Metadata & Owner
+// Get Metadata & Owner (Accessible to all, even unauthenticated users)
 router.get("/:tokenId", getBookMetadata);
 router.get("/owner/:tokenId", getOwner);
 
-// 🗑 3️⃣ Deleting Books
-router.post("/request-delete/:tokenId", requestDeleteBook);
-router.post("/approve-delete/:requestId", approveDeletion);
-router.post("/delete-direct/:tokenId", deleteDirect);
+// Deleting Books
+router.post("/request-delete/:tokenId", authenticateToken, authorizeRole(['AUTHOR']), requestDeleteBook);
+router.post("/approve-delete/:requestId", authenticateToken, authorizeRole(['PLATFORM_ADMIN']), approveDeletion);
+router.post("/delete-direct/:tokenId", authenticateToken, authorizeRole(['PLATFORM_ADMIN']), deleteDirect);
 
-// 🔄 4️⃣ Purchasing & Transfers
+// Purchasing & Transfers
 router.post("/mark-purchased/:tokenId", markAsPurchased);
-
 
 export default router;

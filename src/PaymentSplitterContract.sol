@@ -44,6 +44,8 @@ contract PaymentSplitterContract is ReentrancyGuard {
     event PlatformFeeUpdated(address indexed admin, uint256 platformFee);
     /// @notice Emitted when a payment transfer fails.
     event PaymentFailed(address indexed recipient, uint256 amount);
+    /// @notice Emitted when a payment transfer is successful.
+    event FundsRescued(address indexed recipient, uint256 amount);
 
 //* ╔══════════════════════════════╗
 //* ║          MODIFIERS           ║
@@ -203,6 +205,18 @@ contract PaymentSplitterContract is ReentrancyGuard {
         require(balance > 0, "No funds to claim");
         require(msg.sender != address(0), "Invalid recipient address");
         payable(msg.sender).transfer(balance);
+    }
+
+    /**
+     * @notice Rescues funds from the contract.
+     */ 
+    function rescueFunds() external onlyPlatformAdmin {
+        uint256 balance = address(this).balance;
+        require(balance > 0, "No funds to rescue");
+        require(msg.sender != address(0), "Invalid recipient address");
+        payable(msg.sender).transfer(balance);
+
+        emit FundsRescued(msg.sender, balance);
     }
 
 }

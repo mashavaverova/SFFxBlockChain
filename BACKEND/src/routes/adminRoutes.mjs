@@ -5,10 +5,12 @@ import { assignRole,
     getPlatformWallet, 
     setPlatformWallet } from "../services/adminService.mjs";
 
+import { authenticateToken, authorizeRole } from "../middlewares/authMiddleware.mjs";
+
 const router = express.Router();
 
-// ✅ Assign Role
-router.post("/assign-role", async (req, res) => {
+// Assign Role (Only DEFAULT_ADMIN or PLATFORM_ADMIN can assign roles)
+router.post("/assign-role", authenticateToken, authorizeRole(['DEFAULT_ADMIN', 'PLATFORM_ADMIN']), async (req, res) => {
     try {
         const { role, address, sender } = req.body;
 
@@ -24,8 +26,8 @@ router.post("/assign-role", async (req, res) => {
     }
 });
 
-// ✅ Revoke Role
-router.post("/revoke-role", async (req, res) => {
+// Revoke Role (Only DEFAULT_ADMIN or PLATFORM_ADMIN can revoke roles)
+router.post("/revoke-role", authenticateToken, authorizeRole(['DEFAULT_ADMIN', 'PLATFORM_ADMIN']), async (req, res) => {
     try {
         const { role, address, sender } = req.body;
 
@@ -41,8 +43,8 @@ router.post("/revoke-role", async (req, res) => {
     }
 });
 
-// ✅ Get All Roles for an Address
-router.get("/roles/:address", async (req, res) => {
+// Get All Roles for an Address (Only admins can view roles)
+router.get("/roles/:address", authenticateToken, authorizeRole(['DEFAULT_ADMIN', 'PLATFORM_ADMIN']), async (req, res) => {
     try {
         const { address } = req.params;
 
@@ -58,9 +60,8 @@ router.get("/roles/:address", async (req, res) => {
     }
 });
 
-
-// ✅ Get Current Platform Wallet
-router.get('/platform-wallet', async (req, res) => {
+// Get Current Platform Wallet (Only DEFAULT_ADMIN and PLATFORM_ADMIN can see it)
+router.get('/platform-wallet', authenticateToken, authorizeRole(['DEFAULT_ADMIN', 'PLATFORM_ADMIN']), async (req, res) => {
     try {
         const wallet = await getPlatformWallet();
         res.json({ platformWallet: wallet });
@@ -70,8 +71,8 @@ router.get('/platform-wallet', async (req, res) => {
     }
 });
 
-// ✅ Set New Platform Wallet
-router.post('/set-platform-wallet', async (req, res) => {
+// Set New Platform Wallet (Only DEFAULT_ADMIN can change it)
+router.post('/set-platform-wallet', authenticateToken, authorizeRole(['DEFAULT_ADMIN']), async (req, res) => {
     try {
         const { newWallet, sender } = req.body;
         if (!newWallet || !sender) {

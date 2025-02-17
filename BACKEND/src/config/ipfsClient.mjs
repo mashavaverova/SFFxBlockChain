@@ -1,5 +1,5 @@
 import { create } from 'ipfs-http-client';
-import ENV from '../config/environment.mjs'; // Ensure environment variables are used
+import ENV from '../config/environment.mjs'; 
 
 const ipfs = create({
     host: ENV.ipfsHost || '127.0.0.1', // Default to local IPFS node

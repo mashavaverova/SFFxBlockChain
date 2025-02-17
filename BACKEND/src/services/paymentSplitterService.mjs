@@ -3,7 +3,7 @@ import ENV from "../config/environment.mjs";
 import abi from "../../abis/PaymentSplitterContract.json" assert { type: "json" };
 import { convertBigInt } from "../utils/convertBigInt.mjs";
 
-// ✅ Connect Web3
+// Connect Web3
 const web3 = new Web3(new Web3.providers.HttpProvider(ENV.anvilRpcUrl));
 const paymentSplitterContractAddress = ENV.contractAddresses.paymentSplitterContract;
 const contract = new web3.eth.Contract(abi, paymentSplitterContractAddress);
@@ -11,7 +11,7 @@ const contract = new web3.eth.Contract(abi, paymentSplitterContractAddress);
 console.log("🔍 PaymentSplitter Address:", paymentSplitterContractAddress);
 console.log("🔍 Contract Instance:", paymentSplitterContractAddress);
 
-// ✅ Utility Function to Handle EIP-1559 Gas
+// Utility Function to Handle EIP-1559 Gas
 async function getGasConfig() {
     const baseGasPrice = await web3.eth.getGasPrice();
     return {
@@ -20,7 +20,7 @@ async function getGasConfig() {
     };
 }
 
-// ✅ 1️⃣ Set Platform Fee
+// Set Platform Fee
 async function setPlatformFee(req, res, next) {
     try {
         const { author, fee, privateKey } = req.body;
@@ -47,8 +47,7 @@ async function setPlatformFee(req, res, next) {
         next(error);
     }
 }
-
-// ✅ 2️⃣ Set Author Split Config
+// Set Author Split Config
 async function setAuthorSplits(req, res, next) {
     try {
         const { author, recipients, percentages, privateKey } = req.body;
@@ -76,7 +75,7 @@ async function setAuthorSplits(req, res, next) {
     }
 }
 
-// ✅ 3️⃣ Delete Author Split Config
+// Delete Author Split Config
 async function deleteAuthorSplits(req, res, next) {
     try {
         const { author, privateKey } = req.body;
@@ -104,7 +103,7 @@ async function deleteAuthorSplits(req, res, next) {
     }
 }
 
-// ✅ 4️⃣ Split Payment
+// Split Payment
 async function splitPayment(req, res, next) {
     try {
         const { author, amount, privateKey } = req.body;
@@ -133,7 +132,7 @@ async function splitPayment(req, res, next) {
     }
 }
 
-// ✅ 5️⃣ Get Platform Fee
+// Get Platform Fee
 async function getPlatformFee(req, res, next) {
     try {
         const author = req.params.author;
@@ -144,7 +143,7 @@ async function getPlatformFee(req, res, next) {
     }
 }
 
-// ✅ 6️⃣ Get Recipients
+// Get Recipients
 async function getRecipients(req, res, next) {
     try {
         const author = req.params.author;
@@ -163,9 +162,7 @@ async function getRecipients(req, res, next) {
     }
 }
 
-
-
-// ✅ 7️⃣ Get Percentages
+// Get Percentages
 async function getPercentages(req, res, next) {
     try {
         const author = req.params.author;
@@ -176,7 +173,7 @@ async function getPercentages(req, res, next) {
     }
 }
 
-// ✅ 8️⃣ Claim Failed Payments
+// Claim Failed Payments
 async function claimFailedPayments(req, res, next) {
     try {
         const { privateKey } = req.body;

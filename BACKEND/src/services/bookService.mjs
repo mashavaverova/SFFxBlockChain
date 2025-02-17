@@ -7,6 +7,7 @@ const web3 = new Web3(new Web3.providers.HttpProvider(ENV.anvilRpcUrl));
 const nftBookContractAddress = ENV.contractAddresses.nftBookContract;
 const contract = new web3.eth.Contract(abi, nftBookContractAddress);
 
+// Request Publish Book by Author
 async function requestPublishBook(req, res, next) {
     try {
         const { recipient, title, bookHash, privateKey } = req.body;
@@ -36,6 +37,7 @@ async function requestPublishBook(req, res, next) {
     }
 }
 
+// Approve Publishing by Admin
 async function approvePublishing(req, res, next) {
     try {
         const { requestId, privateKey } = req.body;
@@ -54,7 +56,7 @@ async function approvePublishing(req, res, next) {
                 to: nftBookContractAddress,
                 data: tx.encodeABI(),
                 gas,
-                maxPriorityFeePerGas, // ✅ Use EIP-1559 gas params
+                maxPriorityFeePerGas, // Use EIP-1559 gas params
                 maxFeePerGas,
                 from: account.address
             },
@@ -63,7 +65,7 @@ async function approvePublishing(req, res, next) {
 
         const receipt = await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
 
-        // ✅ Convert BigInt values before returning the response
+        // Convert BigInt values before returning the response
         res.json({ success: true, receipt: convertBigInt(receipt) });
 
     } catch (error) {
@@ -71,8 +73,7 @@ async function approvePublishing(req, res, next) {
     }
 }
 
-
-
+// Publish Book by Admin
 async function publishDirect(req, res, next) {
     try {
         const { recipient, title, bookHash, privateKey } = req.body;
@@ -95,6 +96,7 @@ res.json({ success: true, receipt: convertBigInt(receipt) });
     }
 }
 
+// Get Book Metadata 
 async function getBookMetadata(req, res, next) {
     try {
         const tokenId = req.params.tokenId;
@@ -106,7 +108,7 @@ async function getBookMetadata(req, res, next) {
     }
 }
 
-
+// Get Book Owner
 async function getOwner(req, res, next) {
     try {
         const tokenId = req.params.tokenId;
@@ -118,10 +120,8 @@ async function getOwner(req, res, next) {
     }
 }
 
-
-
-
-    async function requestDeleteBook(req, res, next) {
+// Request Delete Book by Author
+async function requestDeleteBook(req, res, next) {
         try {
             const tokenId = req.params.tokenId;
             const { privateKey } = req.body;
@@ -150,8 +150,9 @@ async function getOwner(req, res, next) {
         
         } catch (error) {
             next(error);}
-    }
+}
 
+// Approve Deletion by Admin
 async function approveDeletion(req, res, next) {
     try {
         const { requestId, privateKey } = req.body;
@@ -174,6 +175,7 @@ res.json({ success: true, receipt: convertBigInt(receipt) });
     }
 }
 
+// Delete Book by Admin 
 async function deleteDirect(req, res, next) {
     try {
         const { tokenId, privateKey } = req.body;
@@ -196,6 +198,7 @@ res.json({ success: true, receipt: convertBigInt(receipt) });
     }
 }
 
+// Mark Book as Purchased
 async function markAsPurchased(req, res, next) {
     try {
         const { tokenId, privateKey } = req.body;

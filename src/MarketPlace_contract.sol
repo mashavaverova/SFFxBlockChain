@@ -4,8 +4,8 @@ pragma solidity 0.8.27;
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 import "./DEF_ADMIN_contract.sol";
 import "./PaymentSplitterContract.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "./IRightsManagerContract.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "./IRightsManagerContract.sol"; // ✅ Use interface instead of importing full contract
 
 /**
  * @title MarketplaceContract
@@ -26,35 +26,25 @@ contract MarketplaceContract is ReentrancyGuard {
         uint256 price; // in wei
         bool active;
     }
-    
+
     /// @notice Mapping of tokenId to their respective listings.
     mapping(uint256 => Listing) public listings;
 
-//* ╔══════════════════════════════╗
-//* ║            EVENTS            ║
-//* ╚══════════════════════════════
+    //* ╔══════════════════════════════╗
+    //* ║            EVENTS            ║
+    //* ╚══════════════════════════════╝
 
-    /// @notice Emitted when an NFT is listed for sale.
     event Listed(address indexed seller, uint256 indexed tokenId, uint256 price);
-    /// @notice Emitted when an existing listing is updated.
     event ListingUpdated(address indexed seller, uint256 indexed tokenId, uint256 newPrice);
-    /// @notice Emitted when a listing is removed.
     event ListingRemoved(address indexed seller, uint256 indexed tokenId);
-    /// @notice Emitted when a purchase is completed.
     event PurchaseCompleted(address indexed buyer, uint256 indexed tokenId, uint256 price);
-    /// @notice Emitted when the Rights Manager contract is updated.
     event RightsManagerUpdated(address indexed rightsManagerContract);
 
-//* ╔══════════════════════════════╗
-//* ║         CONSTRUCTOR          ║
-//* ╚══════════════════════════════╝
+    //* ╔══════════════════════════════╗
+    //* ║         CONSTRUCTOR          ║
+    //* ╚══════════════════════════════╝
 
-    /**
-     * @notice Initializes the Marketplace contract.
-     * @param _adminContract Address of the DEF_ADMIN_contract.
-     * @param _paymentSplitter Address of the PaymentSplitter contract.
-     */
-        constructor(
+    constructor(
         address _adminContract,
         address _paymentSplitter
     ) {
@@ -65,11 +55,10 @@ contract MarketplaceContract is ReentrancyGuard {
         paymentSplitter = PaymentSplitterContract(_paymentSplitter);
     }
 
-//* ╔══════════════════════════════╗
-//* ║          MODIFIERS           ║
-//* ╚══════════════════════════════╝
+    //* ╔══════════════════════════════╗
+    //* ║          MODIFIERS           ║
+    //* ╚══════════════════════════════╝
 
-    /// @notice Ensures that only a platform admin can call the function.
     modifier onlyPlatformAdmin() {
         require(
             adminContract.hasSpecificRole(adminContract.PLATFORM_ADMIN_ROLE(), msg.sender),
@@ -77,24 +66,22 @@ contract MarketplaceContract is ReentrancyGuard {
         );
         _;
     }
-    /// @notice Ensures that only the seller of a token can call the function.
+
     modifier onlySeller(uint256 tokenId) {
         require(listings[tokenId].seller == msg.sender, "Not the seller");
         _;
     }
 
-//* ╔══════════════════════════════╗
-//* ║          FUNCTIONS           ║
-//* ╚══════════════════════════════╝
+    //* ╔══════════════════════════════╗
+    //* ║          FUNCTIONS           ║
+    //* ╚══════════════════════════════╝
 
     /**
      * @notice Sets the Rights Manager contract.
      * @param _rightsManagerContract Address of the Rights Manager contract.
      */
-    function setRightsManager(address _rightsManagerContract) external {
-        require(address(rightsManagerContract) == address(0), "RightsManager already set");
+    function setRightsManager(address _rightsManagerContract) external onlyPlatformAdmin {
         require(_rightsManagerContract != address(0), "Invalid RightsManager contract address");
-        
         rightsManagerContract = IRightsManagerContract(_rightsManagerContract);
         emit RightsManagerUpdated(_rightsManagerContract);
     }
@@ -106,6 +93,7 @@ contract MarketplaceContract is ReentrancyGuard {
      */
     function listToken(uint256 tokenId, uint256 price) external nonReentrant {
         require(price > 0, "Price must be greater than 0");
+        require(address(rightsManagerContract) != address(0), "RightsManager not set");
 
         // Check token ownership through RightsManagerContract
         address nftBookContract = rightsManagerContract.nftBookContract();
@@ -114,6 +102,9 @@ contract MarketplaceContract is ReentrancyGuard {
 
         // Ensure the author has the appropriate role
         require(adminContract.hasSpecificRole(adminContract.AUTHOR_ROLE(), msg.sender), "Caller is not an author");
+
+        // ✅ Ensure marketplace is approved to transfer the NFT
+        require(IERC721(nftBookContract).getApproved(tokenId) == address(this), "Marketplace not approved");
 
         listings[tokenId] = Listing({
             seller: msg.sender,
@@ -148,14 +139,12 @@ contract MarketplaceContract is ReentrancyGuard {
         emit ListingRemoved(msg.sender, tokenId);
     }
 
-      /**
+    /**
      * @notice Purchases a listed NFT book.
-     * @dev Handles payment and ownership transfer.
      * @param tokenId ID of the NFT book being purchased.
      */
-//!! REENTRANCY ISSUE HERE
     function purchaseToken(uint256 tokenId) external payable nonReentrant {
-        Listing storage listing = listings[tokenId]; // Use `storage` to modify state directly
+        Listing storage listing = listings[tokenId];
         require(listing.active, "Listing is not active");
         require(msg.value >= listing.price, "Insufficient payment");
 
@@ -164,16 +153,24 @@ contract MarketplaceContract is ReentrancyGuard {
 
         listing.active = false;
 
+        // ✅ Transfer NFT to buyer before handling payment
+        address nftBookContract = rightsManagerContract.nftBookContract();
+        IERC721(nftBookContract).safeTransferFrom(seller, msg.sender, tokenId);
+
+        // ✅ Process payment
+        paymentSplitter.splitPayment{value: listing.price}(seller);
+
+        // ✅ Mark as purchased in rights manager
+        rightsManagerContract.completeTransfer(tokenId, block.timestamp + 365 days, "");
+
+        // ✅ Remove listing
+        delete listings[tokenId];
+
+        // ✅ Refund excess ETH (if overpaid)
         if (msg.value > listing.price) {
             (bool refundSuccess, ) = msg.sender.call{value: msg.value - listing.price}("");
             require(refundSuccess, "Refund failed");
         }
-
-        paymentSplitter.splitPayment{value: listing.price}(seller);
-
-        rightsManagerContract.completeTransfer(tokenId, block.timestamp + 365 days, "");
-
-        delete listings[tokenId];
 
         emit PurchaseCompleted(msg.sender, tokenId, listing.price);
     }

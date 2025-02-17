@@ -150,7 +150,7 @@ contract RightsManagerContract is ReentrancyGuard {
      * @param expirationDate Expiration date of the transferred rights.
      * @param ipfsHash IPFS hash of the rights agreement.
      */
-    function completeTransfer(uint256 tokenId, uint256 expirationDate, string calldata ipfsHash) external {
+    function completeTransfer(uint256 tokenId, uint256 expirationDate, string calldata ipfsHash) external nonReentrant {
         RightsRequestLib.RightsRequest memory request = rightsRequests[tokenId];
         require(request.authorApproved, "Author approval required");
         require(!request.declined, "Request has been declined");

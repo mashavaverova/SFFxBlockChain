@@ -1,5 +1,5 @@
 import mongoose from 'mongoose';
-import ENV from './environment.mjs'; // Ensure correct import
+import ENV from './environment.mjs'; 
 
 export const connectDB = async () => {
     try {
@@ -15,7 +15,7 @@ export const connectDB = async () => {
         console.log('✅ Connected to MongoDB:', ENV.mongoUri);
     } catch (error) {
         console.error('❌ MongoDB connection error:', error.message);
-        process.exit(1); // Exit the process if DB connection fails
+        process.exit(1); 
     }
 };
 

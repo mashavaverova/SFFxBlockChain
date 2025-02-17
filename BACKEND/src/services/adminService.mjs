@@ -2,24 +2,25 @@ import Web3 from "web3";
 import ENV from "../config/environment.mjs";
 import abi from "../../abis/DEF_ADMIN_contract.json" assert { type: "json" };
 
-// ✅ Connect to Web3
+// Connect to Web3
 const web3 = new Web3(new Web3.providers.HttpProvider(ENV.anvilRpcUrl));
 const adminContract = new web3.eth.Contract(abi, ENV.contractAddresses.adminContract);
 
-// ✅ Unlock the admin account
+// Unlock the admin account
 const account = web3.eth.accounts.privateKeyToAccount(ENV.privateKeyAnvil0);
 web3.eth.accounts.wallet.add(account);
 web3.eth.defaultAccount = account.address;
 
 console.log(`✅ Using admin account: ${account.address}`);
 
-// ✅ Role-Based Hierarchy
+// Role-Based Hierarchy
 const ROLE_FUNCTION_MAPPING = {
     "PLATFORM_ADMIN_ROLE": "grantPlatformAdmin",
     "FUND_MANAGER_ROLE": "grantFundManager",
     "AUTHOR_ROLE": "grantAuthorRole",
 };
 
+// Assign Role
 export const assignRole = async (role, address, sender) => {
     try {
         console.log(`📢 Assigning role: ${role} to ${address} from ${sender}`);
@@ -51,6 +52,7 @@ export const assignRole = async (role, address, sender) => {
     }
 };
 
+// Revoke Role
 export const revokeRole = async (role, address, sender) => {
     try {
         console.log(`📢 Revoking role: ${role} from ${address} by ${sender}`);
@@ -82,8 +84,7 @@ export const revokeRole = async (role, address, sender) => {
     }
 };
 
-
-// ✅ Get All Roles for an Address
+// Get All Roles for an Address
 export const getRolesForAddress = async (address) => {
     try {
         console.log(`📢 Fetching roles for ${address}`);
@@ -106,6 +107,7 @@ export const getRolesForAddress = async (address) => {
     }
 };
 
+// Get Platform Wallet
 export const getPlatformWallet = async () => {
     try {
         console.log("📢 Fetching platform wallet...");
@@ -118,7 +120,7 @@ export const getPlatformWallet = async () => {
     }
 };
 
-// ✅ Set Platform Wallet (Only DEFAULT_ADMIN_ROLE can call)
+// Set Platform Wallet (Only DEFAULT_ADMIN_ROLE can call)
 export const setPlatformWallet = async (newWallet, sender) => {
     try {
         console.log(`📢 Setting new platform wallet: ${newWallet} from ${sender}`);

@@ -3,7 +3,7 @@ import ENV from "../config/environment.mjs";
 import abi from "../../abis/RightsManagerContract.json" assert { type: "json" };
 import { convertBigInt } from "../utils/convertBigInt.mjs";
 
-// ✅ Connect Web3
+// Connect Web3
 const web3 = new Web3(new Web3.providers.HttpProvider(ENV.anvilRpcUrl));
 const rightsManagerContractAddress = ENV.contractAddresses.rightsManagerContract;
 const contract = new web3.eth.Contract(abi, rightsManagerContractAddress);
@@ -19,7 +19,7 @@ async function getGasConfig() {
     };
 }
 
-// ✅ 1️⃣ Set Marketplace
+// Set Marketplace
 async function setMarketplace(req, res, next) {
     try {
         const { newMarketplace, privateKey } = req.body;
@@ -47,7 +47,7 @@ async function setMarketplace(req, res, next) {
     }
 }
 
-// ✅ 2️⃣ Initiate Rights Request
+// Initiate Rights Request
 async function initiateRequest(req, res, next) {
     try {
         const { tokenId, requestDate, buyer, privateKey } = req.body;
@@ -75,7 +75,7 @@ async function initiateRequest(req, res, next) {
     }
 }
 
-// ✅ 3️⃣ Author Approval
+// Author Approval
 async function authorApprove(req, res, next) {
     try {
         const { tokenId, privateKey } = req.body;
@@ -103,7 +103,7 @@ async function authorApprove(req, res, next) {
     }
 }
 
-// ✅ 4️⃣ Complete Rights Transfer
+// Complete Rights Transfer
 async function completeTransfer(req, res, next) {
     try {
         const { tokenId, expirationDate, ipfsHash, privateKey } = req.body;
@@ -131,7 +131,7 @@ async function completeTransfer(req, res, next) {
     }
 }
 
-// ✅ 5️⃣ Get Rights Info
+// Get Rights Info
 async function getRightsInfo(req, res, next) {
     try {
         const tokenId = req.params.tokenId;

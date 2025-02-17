@@ -3,14 +3,14 @@ import ENV from "../config/environment.mjs";
 import abi from "../../abis/MarketplaceContract.json" assert { type: "json" };
 import { convertBigInt } from "../utils/convertBigInt.mjs";
 
-// ✅ Connect Web3
+// Connect Web3
 const web3 = new Web3(new Web3.providers.HttpProvider(ENV.anvilRpcUrl));
 const marketplaceContractAddress = ENV.contractAddresses.marketplaceContract;
 const contract = new web3.eth.Contract(abi, marketplaceContractAddress);
 
 console.log("🔍 Marketplace Address:", marketplaceContractAddress);
 
-// ✅ Utility Function to Handle EIP-1559 Gas
+// Utility Function to Handle EIP-1559 Gas
 async function getGasConfig() {
     const baseGasPrice = await web3.eth.getGasPrice();
     return {
@@ -19,7 +19,7 @@ async function getGasConfig() {
     };
 }
 
-// ✅ 1️⃣ List Token for Sale
+// List Token for Sale
 async function listToken(req, res, next) {
     try {
         const { tokenId, price, privateKey } = req.body;
@@ -47,7 +47,7 @@ async function listToken(req, res, next) {
     }
 }
 
-// ✅ 2️⃣ Update Listing Price
+// Update Listing Price
 async function updateListing(req, res, next) {
     try {
         const { tokenId, newPrice, privateKey } = req.body;
@@ -75,7 +75,7 @@ async function updateListing(req, res, next) {
     }
 }
 
-// ✅ 3️⃣ Remove Listing
+// Remove Listing
 async function removeListing(req, res, next) {
     try {
         const { tokenId, privateKey } = req.body;
